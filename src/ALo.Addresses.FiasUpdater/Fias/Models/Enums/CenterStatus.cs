@@ -1,5 +1,8 @@
-﻿namespace ALo.Addresses.Data.Models.Enums
+﻿using System;
+
+namespace ALo.Addresses.FiasUpdater.Fias.Models.Enums
 {
+    [Serializable]
     public enum CenterStatus
     {
         /// <summary>

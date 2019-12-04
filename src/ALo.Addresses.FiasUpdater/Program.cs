@@ -24,13 +24,13 @@ namespace ALo.Addresses.FiasUpdater
             var services = CompileServices(config);
             var provider = services.BuildServiceProvider();
 
-            using (var context = provider.GetRequiredService<Func<FiasContext>>()())
-            {
-                await context.Database.MigrateAsync();
-            }
+            //using (var context = provider.GetRequiredService<Func<FiasContext>>()())
+            //{
+            //    await context.Database.MigrateAsync();
+            //}
 
             var updater = provider.GetRequiredService<Fias.FiasUpdater>();
-            //await updater.Update();
+            await updater.Update();
         }
 
         private static IServiceCollection CompileServices(IConfiguration configuration) => new ServiceCollection()
