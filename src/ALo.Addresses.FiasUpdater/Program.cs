@@ -1,5 +1,6 @@
 ﻿using ALo.Addresses.Data;
 using ALo.Addresses.FiasUpdater.Configuration;
+using ALo.Addresses.FiasUpdater.Fias;
 using ALo.Addresses.FiasUpdater.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -37,6 +38,7 @@ namespace ALo.Addresses.FiasUpdater
             .ConfigureOptions<Source>(configuration)
             .AddData(configuration)
             .AddTransient<ISystemFacade, SystemFacade>()
+            .AddTransient<FiasReader>()
             .AddTransient<Fias.FiasUpdater>();
 
         private static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
