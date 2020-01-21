@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "FiasUpdater App": {
+      "commandName": "Project"
+    },
+    "Migrate database": {
+      "commandName": "Project",
+      "commandLineArgs": "--install"
+    }
+  }
+}

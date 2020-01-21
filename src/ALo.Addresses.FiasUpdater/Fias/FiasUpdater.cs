@@ -1,13 +1,15 @@
 ﻿using ALo.Addresses.FiasUpdater.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace ALo.Addresses.FiasUpdater.Fias
 {
-    internal class FiasUpdater
+    internal class FiasUpdater : IHostedService
     {
         private readonly IOptions<Source> sourceOptions;
         private readonly FiasReader reader;
@@ -25,7 +27,9 @@ namespace ALo.Addresses.FiasUpdater.Fias
             this.serializerFactory = t => new XmlSerializer(t);
         }
 
-        internal async Task Update()
+        public async Task StopAsync(CancellationToken cancellationToken) { }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
