@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -10,7 +12,8 @@ namespace ALo.Addresses.FiasUpdater.Fias
         public delegate void ProgressChangedEventHander(object sender, double progressPersentage);
         public event ProgressChangedEventHander ProgressChanged;
 
-        public async IAsyncEnumerable<T> Read<T>(string fileName, string rootNode, XmlSerializer serializer) where T : class
+        public async IAsyncEnumerable<T> Read<T>(string fileName, string rootNode, XmlSerializer serializer,
+            [EnumeratorCancellation]CancellationToken cancellationToken) where T : class
         {
             using var sreamReader = new StreamReader(fileName);
             using var reader = XmlReader.Create(sreamReader, new XmlReaderSettings { Async = true, IgnoreWhitespace = true });
@@ -19,6 +22,8 @@ namespace ALo.Addresses.FiasUpdater.Fias
             var previous = "";
             while (await reader.ReadAsync() && reader.NodeType != XmlNodeType.EndElement)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
                 var data = serializer.Deserialize(reader.ReadSubtree()) as T;
 
                 if (lastPosition != sreamReader.BaseStream.Position)
