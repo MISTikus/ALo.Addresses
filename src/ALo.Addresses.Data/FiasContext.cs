@@ -5,7 +5,7 @@ namespace ALo.Addresses.Data
 {
     public abstract class FiasContext : DbContext
     {
-        public FiasContext(DbContextOptions options) : base(options) { }
+        public FiasContext(DbContextOptions options) : base(options) => ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
         public virtual DbSet<Address> Addresses { get; set; }
         public virtual DbSet<House> Houses { get; set; }

@@ -3,6 +3,7 @@ using ALo.Addresses.Data.SqLite;
 using ALo.Addresses.Data.SqlServer;
 using ALo.Addresses.FiasUpdater.Configuration;
 using ALo.Addresses.FiasUpdater.Fias;
+using ALo.Addresses.FiasUpdater.Fias.Models;
 using ALo.Addresses.FiasUpdater.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -36,9 +37,17 @@ namespace ALo.Addresses.FiasUpdater
                 services
                     .ConfigureOptions<Source>(hostContext.Configuration)
                     .AddData(hostContext.Configuration)
+                    .AddSingleton<IQueueFacade, QueueFacade>()
                     .AddTransient<ISystemFacade, SystemFacade>()
                     .AddTransient<FiasReader>()
                     .AddTransient<Fias.FiasUpdater>()
+                    .AddTransient<HouseHandler>()
+                    .AddTransient<AddressHandler>()
+                    .AddSingleton<IDictionary<Type, IHandler>>(s => new Dictionary<Type, IHandler>
+                    {
+                        [typeof(HouseObject)] = s.GetRequiredService<HouseHandler>(),
+                        [typeof(AddressObject)] = s.GetRequiredService<AddressHandler>(),
+                    })
                     .AddLogging(c => c.AddConsole());
 
                 if (args.Contains("--install"))
@@ -63,13 +72,13 @@ namespace ALo.Addresses.FiasUpdater
                 {
                     services.AddDbContext<SqLiteFiasContext>((s, c) => c
                         .UseSqlite(dataOptions.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
-                    services.AddTransient<Func<FiasContext>>(p => () => p.GetService<SqLiteFiasContext>());
+                    services.AddSingleton<Func<FiasContext>>(p => () => p.GetService<SqLiteFiasContext>());
                 },
                 [Provider.SqlServer] = () =>
                 {
                     services.AddDbContext<SqlServerFiasContext>((s, c) => c
                         .UseSqlServer(dataOptions.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
-                    services.AddTransient<Func<FiasContext>>(p => () => p.GetService<SqlServerFiasContext>());
+                    services.AddSingleton<Func<FiasContext>>(p => () => p.GetService<SqlServerFiasContext>());
                 },
                 // ToDo: add more
             };

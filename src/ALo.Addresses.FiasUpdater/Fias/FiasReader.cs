@@ -13,7 +13,7 @@ namespace ALo.Addresses.FiasUpdater.Fias
         public event ProgressChangedEventHander ProgressChanged;
 
         public async IAsyncEnumerable<T> Read<T>(string fileName, string rootNode, XmlSerializer serializer,
-            [EnumeratorCancellation]CancellationToken cancellationToken) where T : class
+            [EnumeratorCancellation]CancellationToken cancellationToken, int length = 0) where T : class
         {
             using var sreamReader = new StreamReader(fileName);
             using var reader = XmlReader.Create(sreamReader, new XmlReaderSettings { Async = true, IgnoreWhitespace = true });
@@ -30,9 +30,9 @@ namespace ALo.Addresses.FiasUpdater.Fias
                 {
                     lastPosition = sreamReader.BaseStream.Position;
                     var progress = 100.0 * lastPosition / sreamReader.BaseStream.Length;
-                    if (progress.ToString("F2") != previous)
+                    if (progress.ToString($"F{length}") != previous)
                     {
-                        previous = progress.ToString("F2");
+                        previous = progress.ToString($"F{length}");
                         ProgressChanged.Invoke(this, progress);
                     }
                 }
