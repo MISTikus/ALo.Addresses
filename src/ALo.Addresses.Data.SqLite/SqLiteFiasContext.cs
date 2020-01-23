@@ -1,5 +1,9 @@
 ﻿using ALo.Addresses.Data.Models;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ALo.Addresses.Data.SqLite
 {
@@ -21,5 +25,8 @@ namespace ALo.Addresses.Data.SqLite
             builder.Entity<House>()
                 .HasIndex(h => new { h.AddressId, h.EndDate });
         }
+
+        public override async Task InsertAll<T>(List<T> toInsert, CancellationToken cancellationToken) where T : class => await this
+            .BulkInsertAsync(toInsert, cancellationToken: cancellationToken);
     }
 }

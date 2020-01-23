@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ALo.Addresses.Data.Postgres\ALo.Addresses.Data.Postgres.csproj" />
     <ProjectReference Include="..\ALo.Addresses.Data.SqLite\ALo.Addresses.Data.SqLite.csproj" />
     <ProjectReference Include="..\ALo.Addresses.Data.SqlServer\ALo.Addresses.Data.SqlServer.csproj" />
     <ProjectReference Include="..\ALo.Addresses.Data\ALo.Addresses.Data.csproj" />

@@ -1,13 +1,15 @@
 ﻿using ALo.Addresses.Data;
+using ALo.Addresses.Data.Models;
 using ALo.Addresses.FiasUpdater.Fias.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ALo.Addresses.FiasUpdater.Fias
 {
-    internal class AddressHandler : IHandler<AddressObject>
+    internal class AddressHandler : IHandler<AddressObject>, IHandler<Address[]>
     {
         private readonly Func<FiasContext> contextFactory;
 
@@ -30,6 +32,15 @@ namespace ALo.Addresses.FiasUpdater.Fias
                 DivisionType = (byte)item.DivisionType,
             });
             await context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task HandleAsync(Address[] items, FiasContext context, CancellationToken cancellationToken)
+        {
+            var ids = items.Select(x => x.Id).ToList();
+            var existingIds = await context.Addresses.AsNoTracking().Where(x => ids.Contains(x.Id)).Select(x => x.Id).ToListAsync();
+            var toInsert = items.Where(x => !existingIds.Contains(x.Id)).ToList();
+
+            await context.InsertAll(toInsert, cancellationToken: cancellationToken);
         }
     }
 }

@@ -3,6 +3,7 @@
     public enum Provider
     {
         SqLite,
-        SqlServer
+        SqlServer,
+        Postgres
     }
 }

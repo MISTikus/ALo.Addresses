@@ -92,6 +92,7 @@ namespace ALo.Addresses.FiasUpdater.Fias.Models
         /// </summary>
         [XmlAttribute("IFNSUL"), StringLength(4)]
         public string LegalEntityTaxOfficeCode { get; set; }
+
         /// <summary>
         /// Код территориального участка ИФНС ЮЛ
         /// </summary>

@@ -33,9 +33,9 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
             this.tasks = Enumerable.Range(0, 10).Select(x => Task.Run(() => DequeueAsync().Wait())).ToArray();
         }
 
-
         public void Enqueue<T>(T item, CancellationToken cancellationToken)
         {
+            QueueLength++;
             var type = typeof(T);
             if (!this.workers.ContainsKey(type))
                 this.workers.AddOrUpdate(type, t => CreateWorker<T>(cancellationToken), (t, a) => a);
@@ -48,8 +48,6 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
                     this.logger.LogWarning($"Can`t add worker for type '{type.Name}'");
                 return Task.CompletedTask;
             });
-
-            QueueLength++;
         }
 
         private async Task DequeueAsync()
@@ -60,13 +58,13 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
                 if (this.queue.TryDequeue(out var func))
                     try
                     {
-                        QueueLength--;
                         await func(context);
-                        if (QueueLength % 1000 == 0 && QueueLength != this.lastQueueLength)
+                        if (QueueLength % 10 == 0 && QueueLength != this.lastQueueLength)
                         {
                             this.logger.LogInformation($"Item saved. Queue length: '{QueueLength}'");
                             this.lastQueueLength = QueueLength;
                         }
+                        QueueLength--;
                     }
                     catch (Exception e)
                     {
@@ -81,14 +79,35 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
         {
             var type = typeof(T);
             var handler = this.handlers[type];
-            var handle = handler.GetType().GetMethod("HandleAsync");
-            return (c, o) => !cancellationToken.IsCancellationRequested
-                    ? (Task)handle.Invoke(handler, new[] { o, c, cancellationToken })
-                    : Task.FromCanceled(cancellationToken);
+            try
+            {
+                var handle = handler.GetType().GetMethods().First(x => x.Name == "HandleAsync" && x.GetParameters().Any(x => x.ParameterType == type));
+                return (c, o) => !cancellationToken.IsCancellationRequested
+                        ? (Task)handle.Invoke(handler, new[] { o, c, cancellationToken })
+                        : Task.FromCanceled(cancellationToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
-        public Task Awaiter() => Task.WhenAll(this.tasks);
-        public void Cancel() => this.cancellation.Cancel();
+        public async Task Awaiter() => await Task.WhenAll(this.tasks);
+        public void Cancel(bool whenFinished = false)
+        {
+            Task.Delay(1000).Wait();
+
+            if (!whenFinished || QueueLength == 0)
+                this.cancellation.Cancel();
+            else
+            {
+                while (QueueLength > 0)
+                {
+                    Task.Delay(100).Wait();
+                }
+                this.cancellation.Cancel();
+            }
+        }
     }
 
     internal interface IQueueFacade
@@ -96,6 +115,6 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
         int QueueLength { get; set; }
         void Enqueue<T>(T item, CancellationToken cancellationToken);
         Task Awaiter();
-        void Cancel();
+        void Cancel(bool checkForWork = false);
     }
 }

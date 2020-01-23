@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ALo.Addresses.Data.SqLite",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ALo.Addresses.Data.SqlServer", "src\ALo.Addresses.Data.SqlServer\ALo.Addresses.Data.SqlServer.csproj", "{848D49B4-6768-4299-AA11-05797D5AE0D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ALo.Addresses.Data.Postgres", "src\ALo.Addresses.Data.Postgres\ALo.Addresses.Data.Postgres.csproj", "{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,18 @@ Global
 		{848D49B4-6768-4299-AA11-05797D5AE0D8}.Release|x64.Build.0 = Release|Any CPU
 		{848D49B4-6768-4299-AA11-05797D5AE0D8}.Release|x86.ActiveCfg = Release|Any CPU
 		{848D49B4-6768-4299-AA11-05797D5AE0D8}.Release|x86.Build.0 = Release|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Debug|x64.Build.0 = Debug|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Debug|x86.Build.0 = Debug|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Release|x64.ActiveCfg = Release|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Release|x64.Build.0 = Release|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Release|x86.ActiveCfg = Release|Any CPU
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +99,7 @@ Global
 		{104EB70C-5458-47B5-B30E-E7A84FDA404E} = {2C6C7DFC-790E-46FE-BCF1-9522D2321EBC}
 		{E76AB375-20A1-49DB-8CC3-4667AB0BD6E2} = {2C6C7DFC-790E-46FE-BCF1-9522D2321EBC}
 		{848D49B4-6768-4299-AA11-05797D5AE0D8} = {2C6C7DFC-790E-46FE-BCF1-9522D2321EBC}
+		{2D443DEA-1E3B-4ECC-90A6-9F3C1D1C6597} = {2C6C7DFC-790E-46FE-BCF1-9522D2321EBC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C21A290E-A39E-48F4-AC44-37FD53428422}

@@ -1,4 +1,5 @@
 ﻿using ALo.Addresses.Data;
+using ALo.Addresses.Data.Models;
 using ALo.Addresses.Data.SqLite;
 using ALo.Addresses.Data.SqlServer;
 using ALo.Addresses.FiasUpdater.Configuration;
@@ -15,14 +16,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ALo.Addresses.FiasUpdater
 {
     internal static class Program
     {
-        private static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
+        private static async Task Main(string[] args) => await CreateHostBuilder(args).Build().RunAsync();
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host
             .CreateDefaultBuilder(args)
@@ -47,6 +47,8 @@ namespace ALo.Addresses.FiasUpdater
                     {
                         [typeof(HouseObject)] = s.GetRequiredService<HouseHandler>(),
                         [typeof(AddressObject)] = s.GetRequiredService<AddressHandler>(),
+                        [typeof(House[])] = s.GetRequiredService<HouseHandler>(),
+                        [typeof(Address[])] = s.GetRequiredService<AddressHandler>(),
                     })
                     .AddLogging(c => c.AddConsole());
 
@@ -57,6 +59,22 @@ namespace ALo.Addresses.FiasUpdater
                     services.AddHostedService<ApplicationStopper>();
                     return;
                 }
+
+                services.AddSingleton(s => new Arguments
+                {
+                    Addresses = args.Contains("-a") || args.Contains("--addresses"),
+                    Houses = args.Contains("-h") || args.Contains("--houses"),
+                    Skip = args.Any(x => x.StartsWith("/s"))
+                        ? hostContext.Configuration.GetValue<int>("s")
+                        : args.Any(x => x.StartsWith("--skip"))
+                            ? hostContext.Configuration.GetValue<int>("skip")
+                            : 0,
+                    Take = args.Any(x => x.StartsWith("/t"))
+                        ? hostContext.Configuration.GetValue<int>("t")
+                        : args.Any(x => x.StartsWith("--take"))
+                            ? hostContext.Configuration.GetValue<int>("take")
+                            : -1
+                });
 
                 services.AddHostedService<Fias.FiasUpdater>();
             });
@@ -79,6 +97,12 @@ namespace ALo.Addresses.FiasUpdater
                     services.AddDbContext<SqlServerFiasContext>((s, c) => c
                         .UseSqlServer(dataOptions.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
                     services.AddSingleton<Func<FiasContext>>(p => () => p.GetService<SqlServerFiasContext>());
+                },
+                [Provider.Postgres] = () =>
+                {
+                    services.AddDbContext<PostgresFiasContext>((s, c) => c
+                        .UseNpgsql(dataOptions.ConnectionString), ServiceLifetime.Transient, ServiceLifetime.Transient);
+                    services.AddSingleton<Func<FiasContext>>(p => () => p.GetService<PostgresFiasContext>());
                 },
                 // ToDo: add more
             };
@@ -110,15 +134,5 @@ namespace ALo.Addresses.FiasUpdater
         private static IServiceCollection AddFactory<T>(this IServiceCollection services) where T : class => services
             .AddTransient<T>()
             .AddTransient<Func<T>>(s => () => s.GetService<T>());
-
-        private class ApplicationStopper : IHostedService
-        {
-            private readonly IHostApplicationLifetime applicationLifetime;
-
-            public ApplicationStopper(IHostApplicationLifetime applicationLifetime) => this.applicationLifetime = applicationLifetime;
-
-            public async Task StartAsync(CancellationToken cancellationToken) => this.applicationLifetime.StopApplication();
-            public async Task StopAsync(CancellationToken cancellationToken) { }
-        }
     }
 }

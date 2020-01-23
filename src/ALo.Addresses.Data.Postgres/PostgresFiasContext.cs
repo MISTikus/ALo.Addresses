@@ -1,5 +1,6 @@
 ﻿using ALo.Addresses.Data.Models;
-using EFCore.BulkExtensions;
+using LinqToDB.Data;
+using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading;
@@ -7,11 +8,9 @@ using System.Threading.Tasks;
 
 namespace ALo.Addresses.Data.SqlServer
 {
-    public class SqlServerFiasContext : FiasContext
+    public class PostgresFiasContext : FiasContext
     {
-        public SqlServerFiasContext(DbContextOptions<SqlServerFiasContext> options) : base(options)
-        {
-        }
+        public PostgresFiasContext(DbContextOptions<PostgresFiasContext> options) : base(options) => LinqToDBForEFTools.Initialize();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -30,7 +29,10 @@ namespace ALo.Addresses.Data.SqlServer
                 .IncludeProperties(h => h.EndDate);
         }
 
-        public override async Task InsertAll<T>(List<T> toInsert, CancellationToken cancellationToken) where T : class => await this
-            .BulkInsertAsync(toInsert, cancellationToken: cancellationToken);
+        public override async Task InsertAll<T>(List<T> toInsert, CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+                this.BulkCopy(toInsert);
+        }
     }
 }
