@@ -1,4 +1,5 @@
 ﻿using ALo.Addresses.Data;
+using ALo.Addresses.FiasUpdater.Configuration;
 using ALo.Addresses.FiasUpdater.Fias;
 using Microsoft.Extensions.Logging;
 using System;
@@ -22,7 +23,7 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
         private int lastQueueLength;
         public int QueueLength { get; set; }
 
-        public QueueFacade(IDictionary<Type, IHandler> handlers, Func<FiasContext> contextFactory, ILogger<QueueFacade> logger)
+        public QueueFacade(IDictionary<Type, IHandler> handlers, Func<FiasContext> contextFactory, Arguments arguments, ILogger<QueueFacade> logger)
         {
             this.queue = new ConcurrentQueue<Func<FiasContext, Task>>();
             this.workers = new ConcurrentDictionary<Type, Func<FiasContext, object, Task>>();
@@ -30,7 +31,7 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
             this.contextFactory = contextFactory;
             this.logger = logger;
             this.cancellation = new CancellationTokenSource();
-            this.tasks = Enumerable.Range(0, 10).Select(x => Task.Run(() => DequeueAsync().Wait())).ToArray();
+            this.tasks = Enumerable.Range(0, arguments.Parallelism).Select(x => Task.Run(() => DequeueAsync().Wait())).ToArray();
         }
 
         public void Enqueue<T>(T item, CancellationToken cancellationToken)
@@ -68,7 +69,8 @@ namespace ALo.Addresses.FiasUpdater.Infrastructure
                     }
                     catch (Exception e)
                     {
-                        this.logger.LogError(e, "Error...");
+                        this.logger.LogWarning($"Error occured while executing command: {e.Message}");
+                        this.queue.Enqueue(func);
                     }
                 else
                     await Task.Delay(10);

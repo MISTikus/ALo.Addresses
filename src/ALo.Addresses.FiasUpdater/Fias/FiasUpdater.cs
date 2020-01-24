@@ -77,10 +77,10 @@ namespace ALo.Addresses.FiasUpdater.Fias
                 await foreach (var data in this.addressReader.Read<AddressObject>(fileName, "AddressObjects", this.serializerFactory(typeof(AddressObject)),
                     cancellationToken, skip: this.arguments.Skip, take: this.arguments.Take))
                 {
-                    if (this.queue.QueueLength >= 5 * 1000)
+                    if (this.queue.QueueLength >= this.arguments.Parallelism * 10)
                         await Task.Delay(100);
                     chunk.Add(data);
-                    if (chunk.Count >= 10000)
+                    if (chunk.Count >= this.arguments.ChunkSize)
                     {
                         this.queue.Enqueue(chunk.Select(x => ToDto(x)).ToArray(), cancellationToken);
                         chunk.Clear();
@@ -91,7 +91,7 @@ namespace ALo.Addresses.FiasUpdater.Fias
 
                 this.queue.Cancel(true);
                 this.logger.LogInformation($"Elapsed: {addressWatcher.Elapsed.ToString(@"hh\:mm\:ss")}");
-            });
+            }, cancellationToken);
         }
 
         private async Task ReadHouses(string fileName, CancellationToken cancellationToken)
@@ -107,10 +107,10 @@ namespace ALo.Addresses.FiasUpdater.Fias
                 await foreach (var data in this.houseReader.Read<HouseObject>(fileName, "Houses", this.serializerFactory(typeof(HouseObject)),
                     cancellationToken, skip: this.arguments.Skip, take: this.arguments.Take))
                 {
-                    if (this.queue.QueueLength >= 5 * 1000)
+                    if (this.queue.QueueLength >= this.arguments.Parallelism * 10)
                         await Task.Delay(100);
                     chunk.Add(data);
-                    if (chunk.Count >= 10000)
+                    if (chunk.Count >= this.arguments.ChunkSize)
                     {
                         this.queue.Enqueue(chunk.Select(x => ToDto(x)).ToArray(), cancellationToken);
                         chunk.Clear();
@@ -121,7 +121,7 @@ namespace ALo.Addresses.FiasUpdater.Fias
 
                 this.queue.Cancel(true);
                 this.logger.LogInformation($"Elapsed: {houseWatcher.Elapsed.ToString(@"hh\:mm\:ss")}");
-            });
+            }, cancellationToken);
         }
 
         private Address ToDto(AddressObject item) => new Address

@@ -64,6 +64,16 @@ namespace ALo.Addresses.FiasUpdater
                 {
                     Addresses = args.Contains("-a") || args.Contains("--addresses"),
                     Houses = args.Contains("-h") || args.Contains("--houses"),
+                    ChunkSize = args.Any(x => x.StartsWith("/c"))
+                        ? hostContext.Configuration.GetValue<int>("c")
+                        : args.Any(x => x.StartsWith("--chunk"))
+                            ? hostContext.Configuration.GetValue<int>("chunk")
+                            : 10000,
+                    Parallelism = args.Any(x => x.StartsWith("/p"))
+                        ? hostContext.Configuration.GetValue<int>("p")
+                        : args.Any(x => x.StartsWith("--parallel"))
+                            ? hostContext.Configuration.GetValue<int>("parallel")
+                            : 10,
                     Skip = args.Any(x => x.StartsWith("/s"))
                         ? hostContext.Configuration.GetValue<int>("s")
                         : args.Any(x => x.StartsWith("--skip"))

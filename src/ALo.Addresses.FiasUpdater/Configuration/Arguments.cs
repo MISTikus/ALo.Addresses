@@ -6,5 +6,7 @@
         public bool Addresses { get; set; }
         public int Skip { get; set; }
         public int Take { get; set; }
+        public int ChunkSize { get; set; }
+        public int Parallelism { get; set; }
     }
 }

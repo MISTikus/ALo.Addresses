@@ -2,7 +2,7 @@
   "profiles": {
     "FiasUpdater App": {
       "commandName": "Project",
-      "commandLineArgs": "-a /s=10000 /t=10000"
+      "commandLineArgs": "-h /c=1000000 /p=1"
     },
     "Migrate database": {
       "commandName": "Project",

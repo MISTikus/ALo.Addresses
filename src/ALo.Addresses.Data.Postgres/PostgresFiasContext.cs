@@ -31,6 +31,7 @@ namespace ALo.Addresses.Data.SqlServer
 
         public override async Task InsertAll<T>(List<T> toInsert, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (!cancellationToken.IsCancellationRequested)
                 this.BulkCopy(toInsert);
         }
