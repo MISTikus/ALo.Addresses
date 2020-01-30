@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace ALo.Addresses.Data.Models
 {
     [Table("Addresses", Schema = "dbo")]
-    public class Address
+    public class Address : IHasId<Guid>
     {
         [Key, Required, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public Guid Id { get; set; }

@@ -2,6 +2,7 @@
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,5 +29,11 @@ namespace ALo.Addresses.Data.SqLite
 
         public override async Task InsertAll<T>(List<T> toInsert, CancellationToken cancellationToken) where T : class => await this
             .BulkInsertAsync(toInsert, cancellationToken: cancellationToken);
+        public override async Task<IEnumerable<TKey>> CheckExistence<TModel, TKey>(IEnumerable<TKey> keys, bool isExists, CancellationToken cancellationToken) => await
+            Set<TModel>()
+            .AsNoTracking()
+            .Where(x => keys.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
     }
 }

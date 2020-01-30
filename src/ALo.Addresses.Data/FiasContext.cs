@@ -13,6 +13,8 @@ namespace ALo.Addresses.Data
         public virtual DbSet<Address> Addresses { get; set; }
         public virtual DbSet<House> Houses { get; set; }
 
+        public abstract Task<IEnumerable<TKey>> CheckExistence<TModel, TKey>(IEnumerable<TKey> keys, bool isExists = true, CancellationToken cancellationToken = default)
+            where TModel : class, IHasId<TKey>;
         public abstract Task InsertAll<T>(List<T> toInsert, CancellationToken cancellationToken) where T : class;
     }
 }

@@ -2,7 +2,9 @@
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,6 +36,18 @@ namespace ALo.Addresses.Data.SqlServer
             cancellationToken.ThrowIfCancellationRequested();
             if (!cancellationToken.IsCancellationRequested)
                 this.BulkCopy(toInsert);
+        }
+
+        public override async Task<IEnumerable<TKey>> CheckExistence<TModel, TKey>(IEnumerable<TKey> keys, bool isExists, CancellationToken cancellationToken)
+        {
+            IEnumerable<TKey> exists(IGrouping<int, TKey> group) => Set<TModel>().Where(x => group.Contains(x.Id)).Select(x => x.Id).ToList();
+            IEnumerable<TKey> notExists(IGrouping<int, TKey> group) => group.Where(x => !Set<TModel>().Any(s => s.Id.Equals(x))).ToList();
+
+            var i = 0;
+            return keys
+                .GroupBy(x => i++ % 10000)
+                .SelectMany(isExists ? exists : (Func<IGrouping<int, TKey>, IEnumerable<TKey>>)notExists)
+                .ToList();
         }
     }
 }

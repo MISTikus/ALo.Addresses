@@ -37,8 +37,9 @@ namespace ALo.Addresses.FiasUpdater.Fias
         public async Task HandleAsync(Address[] items, FiasContext context, CancellationToken cancellationToken)
         {
             var ids = items.Select(x => x.Id).ToList();
-            var existingIds = await context.Addresses.AsNoTracking().Where(x => ids.Contains(x.Id)).Select(x => x.Id).ToListAsync(cancellationToken);
-            var toInsert = items.Where(x => !existingIds.Contains(x.Id)).ToList();
+            var existingIds = await context.CheckExistence<Address, Guid>(ids, cancellationToken: cancellationToken);
+            //.Addresses.AsNoTracking().Where(x => ids.Contains(x.Id)).Select(x => x.Id).ToListAsync(cancellationToken);
+            var toInsert = items.Where(x => !existingIds.Contains(x.Id)).OrderBy(x => x.Id).ToList();
 
             await context.InsertAll(toInsert, cancellationToken: cancellationToken);
         }
